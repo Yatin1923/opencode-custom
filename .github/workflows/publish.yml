@@ -95,9 +95,6 @@ jobs:
           - os: macos-latest
             platform_flag: --mac --arm64
             target: mac-arm64
-          - os: macos-13
-            platform_flag: --mac --x64
-            target: mac-x64
           - os: windows-latest
             platform_flag: --win
             target: win-x64

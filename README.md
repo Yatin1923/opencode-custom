@@ -17,7 +17,6 @@ Download the latest release for your platform:
 | Platform | Download | Setup |
 |----------|----------|-------|
 | macOS (Apple Silicon) | [**opencode-custom-desktop-mac-arm64.dmg**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-mac-arm64.dmg) | Open the `.dmg`, drag to Applications |
-| macOS (Intel) | [**opencode-custom-desktop-mac-x64.dmg**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-mac-x64.dmg) | Open the `.dmg`, drag to Applications |
 | Windows (x64) | [**opencode-custom-desktop-win-x64.exe**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-win-x64.exe) | Run the installer |
 | Linux (AppImage) | [**opencode-custom-desktop-linux-x64.AppImage**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.AppImage) | `chmod +x *.AppImage && ./opencode-custom-desktop-linux-x64.AppImage` |
 | Linux (Debian) | [**opencode-custom-desktop-linux-x64.deb**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.deb) | `sudo dpkg -i *.deb` |
