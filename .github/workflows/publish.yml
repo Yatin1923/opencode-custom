@@ -2,6 +2,8 @@ name: publish
 
 on:
   push:
+    branches:
+      - dev
     tags:
       - "v*"
   workflow_dispatch:
@@ -36,7 +38,10 @@ jobs:
           elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             V="${GITHUB_REF#refs/tags/v}"
           else
-            V=$(node -p "require('./packages/desktop/package.json').version")
+            # Branch push: use package.json version + short SHA for uniqueness
+            BASE=$(node -p "require('./packages/desktop/package.json').version")
+            SHORT_SHA="${GITHUB_SHA::7}"
+            V="${BASE}-dev.${SHORT_SHA}"
           fi
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "tag=v$V"    >> "$GITHUB_OUTPUT"

@@ -12,16 +12,19 @@ A customized fork of [OpenCode](https://github.com/anomalyco/opencode) with an o
 
 ## Download
 
-Download the desktop app from the [Releases page](https://github.com/Yatin1923/opencode-custom/releases).
+Download the latest release for your platform:
 
-| Platform | File |
-|----------|------|
-| macOS (Apple Silicon) | `opencode-custom-desktop-mac-arm64.dmg` |
-| macOS (Intel) | `opencode-custom-desktop-mac-x64.dmg` |
-| Windows | `opencode-custom-desktop-win-x64.exe` |
-| Linux | `.AppImage`, `.deb`, or `.rpm` |
+| Platform | Download | Setup |
+|----------|----------|-------|
+| macOS (Apple Silicon) | [**opencode-custom-desktop-mac-arm64.dmg**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-mac-arm64.dmg) | Open the `.dmg`, drag to Applications |
+| macOS (Intel) | [**opencode-custom-desktop-mac-x64.dmg**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-mac-x64.dmg) | Open the `.dmg`, drag to Applications |
+| Windows (x64) | [**opencode-custom-desktop-win-x64.exe**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-win-x64.exe) | Run the installer |
+| Linux (AppImage) | [**opencode-custom-desktop-linux-x64.AppImage**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.AppImage) | `chmod +x *.AppImage && ./opencode-custom-desktop-linux-x64.AppImage` |
+| Linux (Debian) | [**opencode-custom-desktop-linux-x64.deb**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.deb) | `sudo dpkg -i *.deb` |
+| Linux (Fedora) | [**opencode-custom-desktop-linux-x64.rpm**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.rpm) | `sudo rpm -i *.rpm` |
 
-> **Note:** The app is unsigned. On macOS, right-click and select "Open" to bypass Gatekeeper. On Windows, click "More info" then "Run anyway" on the SmartScreen prompt.
+> [!NOTE]
+> The app is unsigned. On **macOS**, right-click the app and select "Open" to bypass Gatekeeper. On **Windows**, click "More info" → "Run anyway" on the SmartScreen prompt.
 
 ## Auto-updates
 
@@ -44,14 +47,9 @@ cd packages/app && bun dev -- --port 4444
 
 ## Releasing
 
-Push a version tag to trigger the CI pipeline:
+Every push to the `dev` branch triggers the CI pipeline automatically. It builds desktop apps for macOS (arm64 + x64), Windows (x64), and Linux (x64), uploads them to a GitHub Release, and publishes auto-update manifests.
 
-```bash
-git tag v1.1.0
-git push origin v1.1.0
-```
-
-This builds desktop apps for macOS (arm64 + x64), Windows (x64), and Linux (x64), uploads them to a GitHub Release, and publishes auto-update manifests.
+You can also trigger a release manually from the [Actions tab](https://github.com/Yatin1923/opencode-custom/actions/workflows/publish.yml) with a custom version number.
 
 ## Credits
 
