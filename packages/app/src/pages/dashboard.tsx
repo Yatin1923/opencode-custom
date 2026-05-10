@@ -13,7 +13,7 @@ import { Button } from "@opencode-ai/ui/button"
 import { TeamIcon, statusColor as pipelineStatusColor, type PipelineInstance, type Team } from "@/components/pipeline-row"
 import { OrchestratorFlow } from "@/components/orchestrator-flow"
 
-type SortMode = "attention" | "recent"
+type SortMode = "recent"
 
 type DashboardPrefs = {
   sortBy: SortMode
@@ -25,11 +25,6 @@ type Attention = {
   question: boolean
   retry: boolean
   error: boolean
-}
-
-const ATTENTION_RANK: Record<SortMode, (s: { attention: number; updated: number }) => number> = {
-  attention: (s) => s.attention * 1e15 + s.updated,
-  recent: (s) => s.updated,
 }
 
 function statusLabel(type: string) {
@@ -71,7 +66,7 @@ export default function DashboardPage() {
 
   const [prefs, setPrefs] = persisted(
     "dashboard.v1",
-    createStore<DashboardPrefs>({ sortBy: "attention", showArchived: false }),
+    createStore<DashboardPrefs>({ sortBy: "recent", showArchived: false }),
   )
 
   // ---------- Orchestrator pipelines ----------
@@ -282,37 +277,8 @@ export default function DashboardPage() {
 
   const orchestratorRoots = createMemo(() =>
     (sync.data.session ?? [])
-      .filter((s) => !s.parentID && s.agent === "orchestrator" && (prefs.showArchived || !s.time?.archived))
+      .filter((s) => !s.parentID && (prefs.showArchived || !s.time?.archived))
       .sort((a, b) => (b.time?.updated ?? 0) - (a.time?.updated ?? 0)),
-  )
-
-  // Set of session IDs that belong to any orchestrator flow (root + all descendants),
-  // so we can exclude them from the flat session grid below.
-  const orchestratorFlowIds = createMemo(() => {
-    const sessions = sync.data.session ?? []
-    const byParent = new Map<string, string[]>()
-    for (const s of sessions) {
-      if (!s.parentID) continue
-      const arr = byParent.get(s.parentID)
-      if (arr) arr.push(s.id)
-      else byParent.set(s.parentID, [s.id])
-    }
-    const out = new Set<string>()
-    const stack = orchestratorRoots().map((s) => s.id)
-    while (stack.length) {
-      const id = stack.pop()!
-      if (out.has(id)) continue
-      out.add(id)
-      const kids = byParent.get(id)
-      if (kids) stack.push(...kids)
-    }
-    return out
-  })
-
-  const allSessions = createMemo(() =>
-    (sync.data.session ?? []).filter(
-      (s) => !s.parentID && !orchestratorFlowIds().has(s.id) && (prefs.showArchived || !s.time?.archived),
-    ),
   )
 
   const directory = () => sync.data.path.directory
@@ -334,34 +300,9 @@ export default function DashboardPage() {
     }
   }
 
-  const ranked = createMemo(() => {
-    const list = allSessions().map((session) => {
-      const attention = attentionFor(session.id)
-      const attentionScore =
-        Number(attention.permission) +
-        Number(attention.question) +
-        Number(attention.retry) +
-        Number(attention.error)
-      return {
-        session,
-        attention,
-        attentionScore,
-        updated: session.time?.updated ?? 0,
-        status: sync.data.session_status[session.id]?.type ?? "idle",
-        unseen: notification.session.unseenCount(session.id),
-      }
-    })
-    const rank = ATTENTION_RANK[prefs.sortBy]
-    return list.sort((a, b) => rank({ attention: b.attentionScore, updated: b.updated }) - rank({ attention: a.attentionScore, updated: a.updated }))
-  })
-
-  // Counts across ALL root sessions (orchestrator flows + flat sessions) for the KPI bar.
-  const allRootSessions = createMemo(() =>
-    (sync.data.session ?? []).filter((s) => !s.parentID && (prefs.showArchived || !s.time?.archived)),
-  )
-
+  // Counts across ALL root sessions for the KPI bar.
   const counts = createMemo(() => {
-    const sessions = allRootSessions()
+    const sessions = orchestratorRoots()
     let active = 0
     let waiting = 0
     let errors = 0
@@ -427,98 +368,29 @@ export default function DashboardPage() {
           </Show>
         </div>
 
-        {/* Orchestrator flow trees */}
-        <Show when={orchestratorRoots().length > 0}>
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <h2 class="text-14-medium text-text-strong">Orchestrator Flows</h2>
-              <span class="text-11-regular text-text-weak">
-                {orchestratorRoots().length} flow{orchestratorRoots().length === 1 ? "" : "s"}
+        {/* Session flow trees — all sessions use the same flow visualization */}
+        <Show
+          when={orchestratorRoots().length > 0}
+          fallback={
+            <div class="flex flex-col items-center justify-center py-20 gap-3">
+              <h2 class="text-16-medium text-text-strong">No sessions yet</h2>
+              <span class="text-12-regular text-text-weak">
+                Start a session from the sidebar or use the orchestrator above.
               </span>
             </div>
-            <div class="flex flex-col gap-3">
-              <For each={orchestratorRoots()}>
-                {(root) => (
-                  <OrchestratorFlow
-                    root={root}
-                    onOpen={openSession}
-                    onStop={stopFlow}
-                    onDelete={deleteFlow}
-                    idledAt={idledAt()}
-                    flowViewedAt={flowViewedAt()}
-                  />
-                )}
-              </For>
-            </div>
-          </div>
-        </Show>
-
-        {/* Session grid */}
-        <Show
-          when={ranked().length > 0}
-          fallback={
-            <Show when={orchestratorRoots().length === 0}>
-              <div class="flex flex-col items-center justify-center py-20 gap-3">
-                <h2 class="text-16-medium text-text-strong">No sessions yet</h2>
-                <span class="text-12-regular text-text-weak">
-                  Start a session from the sidebar to see it here.
-                </span>
-              </div>
-            </Show>
           }
         >
-          <div class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
-            <For each={ranked()}>
-              {(item) => (
-                <button
-                  type="button"
-                  class="text-left rounded-lg border border-border-base bg-background-strong p-4 flex flex-col gap-3 hover:border-border-strong transition-colors"
-                  onClick={() => openSession(item.session.id)}
-                >
-                  <div class="flex items-start justify-between gap-2">
-                    <span class="text-14-medium text-text-strong line-clamp-2">
-                      {item.session.title || "Untitled session"}
-                    </span>
-                    <Show when={item.unseen > 0}>
-                      <span
-                        class="shrink-0 rounded-full px-2 py-0.5 text-11-medium"
-                        style={{
-                          background: item.attention.error
-                            ? "var(--color-status-error, #E76F51)20"
-                            : "var(--color-surface-info-base, #2A9D8F)20",
-                          color: item.attention.error
-                            ? "var(--color-status-error, #E76F51)"
-                            : "var(--color-text-strong)",
-                        }}
-                      >
-                        {item.unseen}
-                      </span>
-                    </Show>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span
-                      class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-11-medium"
-                      style={{
-                        background: `${statusColor(item.status, item.attentionScore > 0)}20`,
-                        color: statusColor(item.status, item.attentionScore > 0),
-                      }}
-                    >
-                      <span
-                        class="size-1.5 rounded-full"
-                        style={{ background: statusColor(item.status, item.attentionScore > 0) }}
-                      />
-                      {item.attention.permission
-                        ? "needs approval"
-                        : item.attention.question
-                          ? "needs answer"
-                          : statusLabel(item.status)}
-                    </span>
-                    <Show when={item.attention.error}>
-                      <span class="text-11-regular text-status-error">error</span>
-                    </Show>
-                  </div>
-                  <span class="text-11-regular text-text-weak">{formatRelative(item.updated)}</span>
-                </button>
+          <div class="flex flex-col gap-3">
+            <For each={orchestratorRoots()}>
+              {(root) => (
+                <OrchestratorFlow
+                  root={root}
+                  onOpen={openSession}
+                  onStop={stopFlow}
+                  onDelete={deleteFlow}
+                  idledAt={idledAt()}
+                  flowViewedAt={flowViewedAt()}
+                />
               )}
             </For>
           </div>

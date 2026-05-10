@@ -23,7 +23,13 @@ Download the latest release for your platform:
 | Linux (Fedora) | [**opencode-custom-desktop-linux-x64.rpm**](https://github.com/Yatin1923/opencode-custom/releases/latest/download/opencode-custom-desktop-linux-x64.rpm) | `sudo rpm -i *.rpm` |
 
 > [!NOTE]
-> The app is unsigned. On **macOS**, right-click the app and select "Open" to bypass Gatekeeper. On **Windows**, click "More info" → "Run anyway" on the SmartScreen prompt.
+> The app is unsigned. On first launch:
+> - **macOS:** If you see "OpenCode Custom is damaged", open Terminal and run:
+>   ```bash
+>   xattr -cr /Applications/OpenCode\ Custom.app
+>   ```
+>   Then double-click to open normally.
+> - **Windows:** Click "More info" → "Run anyway" on the SmartScreen prompt.
 
 ## Auto-updates
 
