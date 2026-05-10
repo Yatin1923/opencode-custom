@@ -9,7 +9,7 @@ const channel = (() => {
 // GitHub owner/repo for publishing releases and auto-updates.
 // Change these to your own GitHub repository.
 const GH_OWNER = process.env.GH_PUBLISH_OWNER ?? "Yatin1923"
-const GH_REPO = process.env.GH_PUBLISH_REPO ?? "opencode"
+const GH_REPO = process.env.GH_PUBLISH_REPO ?? "opencode-custom"
 
 const getBase = (): Configuration => ({
   artifactName: "opencode-custom-desktop-${os}-${arch}.${ext}",
