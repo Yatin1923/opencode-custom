@@ -182,6 +182,15 @@ export function registerRendererProtocol() {
       return new Response("Not found", { status: 404 })
     }
 
+    // SPA fallback: if the resolved file doesn't have an extension (i.e. it's a
+    // client-side route like /dir/session/id), serve index.html so the app's
+    // router can handle it. This is required for iframes loading embedded views.
+    const hasExtension = /\.[a-zA-Z0-9]+$/.test(url.pathname)
+    if (!hasExtension) {
+      const fallback = resolve(rendererRoot, "index.html")
+      return net.fetch(pathToFileURL(fallback).toString())
+    }
+
     return net.fetch(pathToFileURL(file).toString())
   })
 }
