@@ -79,7 +79,22 @@ export default defineConfig({
     },
   },
   renderer: {
-    plugins: [appPlugin, sentry],
+    base: "/",
+    plugins: [
+      appPlugin,
+      sentry,
+      {
+        // electron-vite forces base = "./" in production via an enforce:"pre"
+        // preset plugin. We need absolute base ("/") so iframe URLs at nested
+        // routes (e.g. oc://renderer/{cwd}/session/{id}) can still resolve
+        // assets from the renderer root. Override after the preset runs.
+        name: "opencode-desktop:force-absolute-base",
+        enforce: "post" as const,
+        config() {
+          return { base: "/" }
+        },
+      },
+    ],
     publicDir: "../../../app/public",
     root: "src/renderer",
     define: {

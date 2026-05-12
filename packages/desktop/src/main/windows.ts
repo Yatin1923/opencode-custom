@@ -176,6 +176,18 @@ export function registerRendererProtocol() {
       return new Response("Not found", { status: 404 })
     }
 
+    // Defensive: if a nested URL requests a known root asset (e.g. iframe at
+    // /dir/session/id requesting ./assets/main.js), strip the path prefix and
+    // resolve from the renderer root.
+    const rootAssetMatch = url.pathname.match(/\/(assets\/.+|oc-theme-preload\.js|favicon[^/]*|apple-touch-icon[^/]*|site\.webmanifest|social-share[^/]*\.png|web-app-manifest[^/]*\.png)$/)
+    if (rootAssetMatch) {
+      const file = resolve(rendererRoot, rootAssetMatch[1])
+      const rel = relative(rendererRoot, file)
+      if (!rel.startsWith("..") && !isAbsolute(rel)) {
+        return net.fetch(pathToFileURL(file).toString())
+      }
+    }
+
     const file = resolve(rendererRoot, `.${decodeURIComponent(url.pathname)}`)
     const rel = relative(rendererRoot, file)
     if (rel.startsWith("..") || isAbsolute(rel)) {
