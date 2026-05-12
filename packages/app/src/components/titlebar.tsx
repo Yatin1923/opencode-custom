@@ -175,7 +175,7 @@ export function Titlebar() {
 
   return (
     <header
-      class="h-10 shrink-0 bg-background-base relative overflow-hidden"
+      class="h-10 shrink-0 bg-background-base relative overflow-hidden flex justify-between"
       style={{ "min-height": minHeight() }}
       data-tauri-drag-region
       onMouseDown={drag}
