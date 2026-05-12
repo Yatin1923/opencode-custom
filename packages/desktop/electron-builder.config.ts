@@ -18,6 +18,11 @@ const getBase = (): Configuration => ({
     buildResources: "resources",
   },
   files: ["out/**/*", "resources/**/*"],
+  asarUnpack: [
+    "**/node_modules/@lydell/node-pty-*/**",
+    "**/*.node",
+    "**/*.wasm",
+  ],
   extraResources: [
     {
       from: "native/",
@@ -37,7 +42,14 @@ const getBase = (): Configuration => ({
     hardenedRuntime: false,
     gatekeeperAssess: false,
     notarize: false,
-    identity: null,
+    // "-" means ad-hoc sign. electron-builder will sign the .app bundle, all
+    // nested helpers, frameworks, and the dylib chain consistently. This is
+    // required for Squirrel.Mac (which electron-updater uses under the hood)
+    // to validate the new bundle when applying an auto-update. With
+    // identity: null the bundle ends up with an inconsistent/partial signature
+    // and Squirrel.Mac rejects the update with:
+    //   "code has no resources but signature indicates they must be present"
+    identity: "-",
     target: ["dmg", "zip"],
   },
   dmg: {
