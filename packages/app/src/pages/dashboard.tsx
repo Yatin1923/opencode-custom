@@ -7,6 +7,8 @@ import { useSDK } from "@/context/sdk"
 import { useServer } from "@/context/server"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
+import { useLayout } from "@/context/layout"
+import { useCommand } from "@/context/command"
 import { Identifier } from "@/utils/id"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
@@ -17,7 +19,7 @@ import { Icon } from "@opencode-ai/ui/icon"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { DropdownMenu } from "@opencode-ai/ui/dropdown-menu"
 import { Spinner } from "@opencode-ai/ui/spinner"
-import { Tooltip } from "@opencode-ai/ui/tooltip"
+import { Tooltip, TooltipKeybind } from "@opencode-ai/ui/tooltip"
 import { AppIcon } from "@opencode-ai/ui/app-icon"
 import { showToast } from "@opencode-ai/ui/toast"
 import { StatusPopover } from "@/components/status-popover"
@@ -105,12 +107,16 @@ const detectOS = (platform: ReturnType<typeof usePlatform>) => {
   return "unknown" as const
 }
 
-/** Renders open-in-app + status buttons into `opencode-titlebar-right`. */
+/** Renders open-in-app, status, terminal, review and file-tree buttons into `opencode-titlebar-right`. */
 function DashboardTitlebarButtons() {
   const platform = usePlatform()
   const language = useLanguage()
   const server = useServer()
+  const layout = useLayout()
+  const command = useCommand()
   const params = useParams()
+
+  const dashView = layout.view("__dashboard__")
 
   const projectDirectory = createMemo(() => decode64(params.dir) ?? "")
   const os = createMemo(() => detectOS(platform))
@@ -296,6 +302,61 @@ function DashboardTitlebarButtons() {
               <Tooltip placement="bottom" value={language.t("status.popover.trigger")}>
                 <StatusPopover />
               </Tooltip>
+              <TooltipKeybind
+                title={language.t("command.terminal.toggle")}
+                keybind={command.keybind("terminal.toggle")}
+              >
+                <Button
+                  variant="ghost"
+                  class="group/terminal-toggle titlebar-icon w-8 h-6 p-0 box-border shrink-0"
+                  onClick={() => dashView.terminal.toggle()}
+                  aria-label={language.t("command.terminal.toggle")}
+                  aria-expanded={dashView.terminal.opened()}
+                >
+                  <Icon size="small" name={dashView.terminal.opened() ? "terminal-active" : "terminal"} />
+                </Button>
+              </TooltipKeybind>
+
+              <div class="hidden md:flex items-center gap-1 shrink-0">
+                <TooltipKeybind
+                  title={language.t("command.review.toggle")}
+                  keybind={command.keybind("review.toggle")}
+                >
+                  <Button
+                    variant="ghost"
+                    class="group/review-toggle titlebar-icon w-8 h-6 p-0 box-border"
+                    onClick={() => dashView.reviewPanel.toggle()}
+                    aria-label={language.t("command.review.toggle")}
+                    aria-expanded={dashView.reviewPanel.opened()}
+                  >
+                    <Icon size="small" name={dashView.reviewPanel.opened() ? "review-active" : "review"} />
+                  </Button>
+                </TooltipKeybind>
+
+                <TooltipKeybind
+                  title={language.t("command.fileTree.toggle")}
+                  keybind={command.keybind("fileTree.toggle")}
+                >
+                  <Button
+                    variant="ghost"
+                    class="titlebar-icon w-8 h-6 p-0 box-border"
+                    onClick={() => layout.fileTree.toggle()}
+                    aria-label={language.t("command.fileTree.toggle")}
+                    aria-expanded={layout.fileTree.opened()}
+                  >
+                    <div class="relative flex items-center justify-center size-4">
+                      <Icon
+                        size="small"
+                        name={layout.fileTree.opened() ? "file-tree-active" : "file-tree"}
+                        classList={{
+                          "text-icon-strong": layout.fileTree.opened(),
+                          "text-icon-weak": !layout.fileTree.opened(),
+                        }}
+                      />
+                    </div>
+                  </Button>
+                </TooltipKeybind>
+              </div>
             </div>
           </div>
         </Portal>
