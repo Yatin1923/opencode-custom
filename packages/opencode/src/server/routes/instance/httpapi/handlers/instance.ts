@@ -6,7 +6,6 @@ import { Global } from "@opencode-ai/core/global"
 import { LSP } from "@/lsp/lsp"
 import { Vcs } from "@/project/vcs"
 import { Skill } from "@/skill"
-import { SymbolIndex } from "@/memory/symbol-index/symbol-index"
 import { Effect } from "effect"
 import { HttpApiBuilder } from "effect/unstable/httpapi"
 import { InstanceHttpApi } from "../api"
@@ -20,7 +19,6 @@ export const instanceHandlers = HttpApiBuilder.group(InstanceHttpApi, "instance"
     const format = yield* Format.Service
     const lsp = yield* LSP.Service
     const skill = yield* Skill.Service
-    const symbolIndex = yield* SymbolIndex.Service
     const vcs = yield* Vcs.Service
 
     const dispose = Effect.fn("InstanceHttpApi.dispose")(function* () {
@@ -91,10 +89,6 @@ export const instanceHandlers = HttpApiBuilder.group(InstanceHttpApi, "instance"
       return yield* format.status()
     })
 
-    const getSymbolMap = Effect.fn("InstanceHttpApi.symbolMap")(function* () {
-      return yield* symbolIndex.map()
-    })
-
     return handlers
       .handle("dispose", dispose)
       .handle("path", getPath)
@@ -108,6 +102,5 @@ export const instanceHandlers = HttpApiBuilder.group(InstanceHttpApi, "instance"
       .handle("skill", getSkill)
       .handle("lsp", getLsp)
       .handle("formatter", getFormatter)
-      .handle("symbolMap", getSymbolMap)
   }),
 )

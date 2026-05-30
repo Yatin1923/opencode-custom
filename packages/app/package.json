@@ -33,7 +33,6 @@
     "@types/bun": "catalog:",
     "@types/luxon": "catalog:",
     "@types/node": "catalog:",
-    "@types/three": "0.184.1",
     "@typescript/native-preview": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
@@ -74,7 +73,6 @@
     "solid-js": "catalog:",
     "solid-list": "catalog:",
     "tailwindcss": "catalog:",
-    "three": "0.184.0",
     "virtua": "catalog:",
     "zod": "catalog:"
   }

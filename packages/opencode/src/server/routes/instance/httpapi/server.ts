@@ -38,7 +38,6 @@ import { Todo } from "@/session/todo"
 import { SessionShare } from "@/share/session"
 import { ShareNext } from "@/share/share-next"
 import { Skill } from "@/skill"
-import { SymbolIndex } from "@/memory/symbol-index/symbol-index"
 import { Snapshot } from "@/snapshot"
 import { SyncEvent } from "@/sync"
 import { ToolRegistry } from "@/tool/registry"
@@ -192,7 +191,6 @@ export function createRoutes(corsOptions?: CorsOptions) {
       Snapshot.defaultLayer,
       SyncEvent.defaultLayer,
       Skill.defaultLayer,
-      SymbolIndex.defaultLayer,
       Todo.defaultLayer,
       ToolRegistry.defaultLayer,
       Vcs.defaultLayer,

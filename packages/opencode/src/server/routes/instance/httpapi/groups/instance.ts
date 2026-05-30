@@ -4,7 +4,6 @@ import { Format } from "@/format"
 import { LSP } from "@/lsp/lsp"
 import { Vcs } from "@/project/vcs"
 import { Skill } from "@/skill"
-import { SymbolIndex } from "@/memory/symbol-index/symbol-index"
 import { Schema } from "effect"
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema, OpenApi } from "effect/unstable/httpapi"
 import { Authorization } from "../middleware/authorization"
@@ -48,7 +47,6 @@ export const InstancePaths = {
   skill: "/skill",
   lsp: "/lsp",
   formatter: "/formatter",
-  symbolMap: "/symbol-map",
 } as const
 
 export const InstanceApi = HttpApi.make("instance")
@@ -169,16 +167,6 @@ export const InstanceApi = HttpApi.make("instance")
             identifier: "formatter.status",
             summary: "Get formatter status",
             description: "Get formatter status",
-          }),
-        ),
-        HttpApiEndpoint.get("symbolMap", InstancePaths.symbolMap, {
-          success: described(SymbolIndex.Map, "Symbol map"),
-        }).annotateMerge(
-          OpenApi.annotations({
-            identifier: "symbolMap.get",
-            summary: "Get symbol index map",
-            description:
-              "Returns the per-file symbol-index graph (files + call-edges) for the current worktree. Powers the UI 'project map' view.",
           }),
         ),
       )

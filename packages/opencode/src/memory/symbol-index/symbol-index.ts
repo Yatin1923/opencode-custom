@@ -1,4 +1,4 @@
-import { Effect, Layer, Context, Scope, Stream, Schema } from "effect"
+import { Effect, Layer, Context, Scope, Stream } from "effect"
 import path from "path"
 import * as Log from "@opencode-ai/core/util/log"
 import { Bus } from "@/bus"
@@ -6,34 +6,14 @@ import { InstanceState } from "@/effect/instance-state"
 import { FileWatcher } from "@/file/watcher"
 import { AppFileSystem } from "@opencode-ai/core/filesystem"
 import { indexWorktree, indexFile, removeFile, type IndexReport } from "./indexer"
-import { SymbolStore, type WorktreeMap } from "./store"
+import { SymbolStore } from "./store"
 
 const log = Log.create({ service: "symbol-index" })
-
-export class MapFile extends Schema.Class<MapFile>("SymbolMapFile")({
-  path: Schema.String,
-  language: Schema.String,
-  symbol_count: Schema.Number,
-  loc: Schema.Number,
-}) {}
-
-export class MapEdge extends Schema.Class<MapEdge>("SymbolMapEdge")({
-  from: Schema.String,
-  to: Schema.String,
-  weight: Schema.Number,
-}) {}
-
-export class Map extends Schema.Class<Map>("SymbolMap")({
-  worktree: Schema.String,
-  files: Schema.Array(MapFile),
-  edges: Schema.Array(MapEdge),
-}) {}
 
 export interface Interface {
   readonly init: () => Effect.Effect<void>
   readonly reindex: () => Effect.Effect<IndexReport>
   readonly stats: () => Effect.Effect<{ files: number; symbols: number; worktree: string }>
-  readonly map: () => Effect.Effect<WorktreeMap>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/SymbolIndex") {}
@@ -101,10 +81,6 @@ export const layer = Layer.effect(
         const ctx = yield* InstanceState.context
         const s = yield* Effect.sync(() => SymbolStore.worktreeStats(ctx.worktree))
         return { ...s, worktree: ctx.worktree }
-      }),
-      map: Effect.fn("SymbolIndex.map")(function* () {
-        const ctx = yield* InstanceState.context
-        return yield* Effect.sync(() => SymbolStore.worktreeMap(ctx.worktree))
       }),
     })
   }),

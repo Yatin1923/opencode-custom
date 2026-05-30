@@ -1551,25 +1551,6 @@ export type FormatterStatus = {
   enabled: boolean
 }
 
-export type SymbolMapFile = {
-  path: string
-  language: string
-  symbol_count: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
-  loc: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
-}
-
-export type SymbolMapEdge = {
-  from: string
-  to: string
-  weight: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
-}
-
-export type SymbolMap = {
-  worktree: string
-  files: Array<SymbolMapFile>
-  edges: Array<SymbolMapEdge>
-}
-
 export type McpStatusConnected = {
   status: "connected"
 }
@@ -4259,25 +4240,6 @@ export type FormatterStatusResponses = {
 }
 
 export type FormatterStatusResponse = FormatterStatusResponses[keyof FormatterStatusResponses]
-
-export type SymbolMapGetData = {
-  body?: never
-  path?: never
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/symbol-map"
-}
-
-export type SymbolMapGetResponses = {
-  /**
-   * Symbol map
-   */
-  200: SymbolMap
-}
-
-export type SymbolMapGetResponse = SymbolMapGetResponses[keyof SymbolMapGetResponses]
 
 export type McpStatusData = {
   body?: never

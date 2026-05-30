@@ -28,8 +28,6 @@ import { EventRoutes } from "./event"
 import { SyncRoutes } from "./sync"
 import { InstanceMiddleware } from "./middleware"
 import { jsonRequest, runRequest } from "./trace"
-import { SymbolIndex } from "@/memory/symbol-index/symbol-index"
-import { zod } from "@/util/effect-zod"
 import { ExperimentalHttpApiServer } from "./httpapi/server"
 import { EventPaths } from "./httpapi/event"
 import { ExperimentalPaths } from "./httpapi/groups/experimental"
@@ -507,30 +505,6 @@ export const InstanceRoutes = (upgrade: UpgradeWebSocket, opts?: CorsOptions): H
         jsonRequest("InstanceRoutes.formatter.status", c, function* () {
           const svc = yield* Format.Service
           return yield* svc.status()
-        }),
-    )
-    .get(
-      "/symbol-map",
-      describeRoute({
-        summary: "Get symbol index map",
-        description:
-          "Returns the per-file symbol-index graph (files + call-edges) for the current worktree. Powers the UI 'project map' view.",
-        operationId: "symbolMap.get",
-        responses: {
-          200: {
-            description: "Symbol map",
-            content: {
-              "application/json": {
-                schema: resolver(zod(SymbolIndex.Map)),
-              },
-            },
-          },
-        },
-      }),
-      async (c) =>
-        jsonRequest("InstanceRoutes.symbolMap.get", c, function* () {
-          const svc = yield* SymbolIndex.Service
-          return yield* svc.map()
         }),
     )
 }
