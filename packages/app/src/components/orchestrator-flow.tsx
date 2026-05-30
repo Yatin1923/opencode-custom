@@ -229,7 +229,7 @@ export function OrchestratorFlow(props: {
         </div>
       </div>
 
-      <div class="overflow-x-auto -mx-4 px-4">
+      <div>
         <FlowColumns
           node={tree()}
           depth={0}
@@ -295,7 +295,7 @@ function FlowColumns(props: {
   const highlighted = () => !!attention()
 
   return (
-    <div class="flex items-stretch gap-4 min-w-fit">
+    <div class="flex items-stretch gap-4">
       <Show
         when={isRoot()}
         fallback={
@@ -312,7 +312,7 @@ function FlowColumns(props: {
                 props.onOpen(props.node.session.id)
               }
             }}
-            class="text-left rounded-md border bg-background-base px-3 py-2 flex items-start gap-2 hover:border-border-strong transition-colors w-[420px] shrink-0 cursor-pointer"
+            class="text-left rounded-md border bg-background-base px-3 py-2 flex items-start gap-2 hover:border-border-strong transition-colors w-full min-w-0 cursor-pointer"
             classList={{ "border-border-base": !highlighted() }}
             style={highlighted() ? { "border-color": effectiveColor() } : undefined}
           >
@@ -395,7 +395,13 @@ function FlowColumns(props: {
             <line x1="0" y1="1" x2="20" y2="1" stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="3 2" />
           </svg>
         </div>
-        <div class="flex flex-col gap-1.5 justify-center">
+        <div
+          class="grid gap-1.5 flex-1 min-w-0 self-center"
+          classList={{
+            "grid-cols-[repeat(auto-fill,minmax(360px,1fr))]": props.depth === 0,
+            "grid-cols-1": props.depth > 0,
+          }}
+        >
           <For each={props.node.children}>
             {(child) => (
               <FlowColumns
