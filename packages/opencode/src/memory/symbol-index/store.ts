@@ -157,6 +157,59 @@ export function clearWorktree(worktree: string): void {
   Database.use((tx) => tx.delete(IndexedFileTable).where(eq(IndexedFileTable.worktree, worktree)).run())
 }
 
+export type WorktreeMap = {
+  worktree: string
+  files: Array<{ path: string; language: string; symbol_count: number; loc: number }>
+  edges: Array<{ from: string; to: string; weight: number }>
+}
+
+/**
+ * Aggregated graph view of the index: per-file size (symbol_count, max line
+ * seen) and per-(from_file, to_file) call counts. Used by the UI map view.
+ *
+ * Edges are resolved by joining SymbolReference.to_name against Symbol.name
+ * within the same worktree. Ambiguous names (same symbol name in 2 files) get
+ * counted against every match — acceptable for a map overview; precise
+ * resolution would require LSP. Self-edges are dropped.
+ */
+export function worktreeMap(worktree: string): WorktreeMap {
+  return Database.use((tx) => {
+    const files = tx
+      .select({
+        path: IndexedFileTable.path,
+        language: IndexedFileTable.language,
+        symbol_count: IndexedFileTable.symbol_count,
+        loc: sql<number>`coalesce(max(${SymbolTable.end_line}), 0)`.mapWith(Number),
+      })
+      .from(IndexedFileTable)
+      .leftJoin(SymbolTable, eq(SymbolTable.file_path, IndexedFileTable.path))
+      .where(eq(IndexedFileTable.worktree, worktree))
+      .groupBy(IndexedFileTable.path)
+      .all()
+
+    const edgeRows = tx
+      .select({
+        from: SymbolReferenceTable.from_file,
+        to: SymbolTable.file_path,
+        weight: sql<number>`count(*)`.mapWith(Number),
+      })
+      .from(SymbolReferenceTable)
+      .innerJoin(IndexedFileTable, eq(IndexedFileTable.path, SymbolReferenceTable.from_file))
+      .innerJoin(SymbolTable, eq(SymbolTable.name, SymbolReferenceTable.to_name))
+      .innerJoin(
+        sql`${IndexedFileTable} as target_file`,
+        sql`target_file.path = ${SymbolTable.file_path} and target_file.worktree = ${worktree}`,
+      )
+      .where(eq(IndexedFileTable.worktree, worktree))
+      .groupBy(SymbolReferenceTable.from_file, SymbolTable.file_path)
+      .all()
+
+    const edges = edgeRows.filter((e) => e.from !== e.to)
+
+    return { worktree, files, edges }
+  })
+}
+
 export function worktreeStats(worktree: string): { files: number; symbols: number } {
   return Database.use((tx) => {
     const files = tx

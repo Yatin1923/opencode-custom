@@ -48,6 +48,7 @@ import { useCheckServerHealth } from "./utils/server-health"
 
 const HomeRoute = lazy(() => import("@/pages/home"))
 import BoardPage from "@/pages/board"
+import MapPage from "@/pages/map"
 import DashboardPage from "@/pages/dashboard"
 import { Splash } from "@opencode-ai/ui/logo"
 const loadSession = () => import("@/pages/session")
@@ -332,6 +333,7 @@ export function AppInterface(props: {
                     <Route path="/session/:id?" component={SessionRoute} />
                     <Route path="/board" component={BoardPage} />
                     <Route path="/dashboard" component={DashboardPage} />
+                    <Route path="/map" component={MapPage} />
                   </Route>
                 </Dynamic>
               </GlobalSyncProvider>
