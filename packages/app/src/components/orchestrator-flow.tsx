@@ -312,33 +312,35 @@ function FlowColumns(props: {
                 props.onOpen(props.node.session.id)
               }
             }}
-            class="text-left rounded-md border bg-background-base px-2.5 py-1.5 flex items-center gap-2 hover:border-border-strong transition-colors w-[320px] shrink-0 cursor-pointer"
+            class="text-left rounded-md border bg-background-base px-3 py-2 flex items-start gap-2 hover:border-border-strong transition-colors w-[420px] shrink-0 cursor-pointer"
             classList={{ "border-border-base": !highlighted() }}
             style={highlighted() ? { "border-color": effectiveColor() } : undefined}
           >
             <span
-              class="text-10-medium uppercase tracking-wide px-1.5 py-0.5 rounded shrink-0"
+              class="text-10-medium uppercase tracking-wide px-1.5 py-0.5 rounded shrink-0 mt-0.5"
               style={{ background: "rgba(148,163,184,0.15)", color: "var(--color-text-base)" }}
             >
               @{agentName(props.node.session)}
             </span>
-            <span class="text-12-medium text-text-strong truncate flex-1 min-w-0">
+            <span class="text-12-medium text-text-strong line-clamp-2 flex-1 min-w-0 leading-snug">
               {cleanTitle(props.node.session)}
             </span>
-            <span
-              class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-10-medium shrink-0"
-              style={{ background: `${effectiveColor()}20`, color: effectiveColor() }}
-              title={effectiveLabel()}
-            >
+            <div class="flex items-center gap-2 shrink-0 mt-0.5">
               <span
-                class="size-1.5 rounded-full"
-                classList={{ "oc-flow-dot-pulse": attention() === "question" || attention() === "permission" }}
-                style={{ background: effectiveColor() }}
-              />
-            </span>
-            <span class="text-10-regular text-text-weak shrink-0">
-              {formatRelative(props.node.session.time?.updated)}
-            </span>
+                class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-10-medium"
+                style={{ background: `${effectiveColor()}20`, color: effectiveColor() }}
+                title={effectiveLabel()}
+              >
+                <span
+                  class="size-1.5 rounded-full"
+                  classList={{ "oc-flow-dot-pulse": attention() === "question" || attention() === "permission" }}
+                  style={{ background: effectiveColor() }}
+                />
+              </span>
+              <span class="text-10-regular text-text-weak">
+                {formatRelative(props.node.session.time?.updated)}
+              </span>
+            </div>
           </div>
         }
       >
