@@ -1,0 +1,18 @@
+Look up symbols (functions, classes, methods, interfaces, types) in the project's code index by name. Returns the symbol's file:line, kind, signature, and exported status — plus, optionally, its callers and the other symbols declared in the same file.
+
+USE THIS BEFORE:
+- Editing a function (so you see every call site that may break)
+- Calling a function whose exact signature you haven't already read
+- Asking "where is X defined?" — this is faster and more accurate than grep
+- Renaming or removing a public API
+
+USAGE:
+- `name` (required): exact symbol name, case-sensitive (e.g. `createSession`, `Tool.define`)
+- `kind` (optional): narrow to one of `function | class | method | interface | type | enum | variable`
+- `include_callers` (optional, default false): also list approximate call sites
+- `include_file_symbols` (optional, default false): also list sibling symbols in the same file
+
+NOTES:
+- The index covers `.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs` files in the current worktree.
+- If the index is empty, run the `/index` command or call the `task` agent to populate it.
+- References are name-based, so common names may include false positives — confirm by reading the file.
