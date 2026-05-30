@@ -296,52 +296,96 @@ function FlowColumns(props: {
 
   return (
     <div class="flex items-stretch gap-4 min-w-fit">
-      <div
-        role="button"
-        tabindex="0"
-        onClick={(e) => {
-          e.stopPropagation()
-          props.onOpen(props.node.session.id)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault()
-            props.onOpen(props.node.session.id)
-          }
-        }}
-        class="text-left rounded-md border bg-background-base p-3 flex flex-col gap-2 hover:border-border-strong transition-colors w-[220px] shrink-0 cursor-pointer"
-        classList={{ "border-border-base": !highlighted() }}
-        style={highlighted() ? { "border-color": effectiveColor() } : undefined}
-      >
-        <div class="flex items-center gap-2">
-          <span
-            class="text-10-medium uppercase tracking-wide px-1.5 py-0.5 rounded"
-            style={{
-              background: isRoot() ? "rgba(42,157,140,0.15)" : "rgba(148,163,184,0.15)",
-              color: isRoot() ? "#2A9D8F" : "var(--color-text-base)",
+      <Show
+        when={isRoot()}
+        fallback={
+          <div
+            role="button"
+            tabindex="0"
+            onClick={(e) => {
+              e.stopPropagation()
+              props.onOpen(props.node.session.id)
             }}
-          >
-            {isRoot() ? "orchestrator" : `@${agentName(props.node.session)}`}
-          </span>
-        </div>
-        <span class="text-12-medium text-text-strong line-clamp-2">{cleanTitle(props.node.session)}</span>
-        <div class="flex items-center gap-2">
-          <span
-            class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-10-medium"
-            style={{ background: `${effectiveColor()}20`, color: effectiveColor() }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                props.onOpen(props.node.session.id)
+              }
+            }}
+            class="text-left rounded-md border bg-background-base px-2.5 py-1.5 flex items-center gap-2 hover:border-border-strong transition-colors w-[320px] shrink-0 cursor-pointer"
+            classList={{ "border-border-base": !highlighted() }}
+            style={highlighted() ? { "border-color": effectiveColor() } : undefined}
           >
             <span
-              class="size-1.5 rounded-full"
-              classList={{ "oc-flow-dot-pulse": attention() === "question" || attention() === "permission" }}
-              style={{ background: effectiveColor() }}
-            />
-            {effectiveLabel()}
-          </span>
-          <span class="text-10-regular text-text-weak ml-auto">
-            {formatRelative(props.node.session.time?.updated)}
-          </span>
+              class="text-10-medium uppercase tracking-wide px-1.5 py-0.5 rounded shrink-0"
+              style={{ background: "rgba(148,163,184,0.15)", color: "var(--color-text-base)" }}
+            >
+              @{agentName(props.node.session)}
+            </span>
+            <span class="text-12-medium text-text-strong truncate flex-1 min-w-0">
+              {cleanTitle(props.node.session)}
+            </span>
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-10-medium shrink-0"
+              style={{ background: `${effectiveColor()}20`, color: effectiveColor() }}
+              title={effectiveLabel()}
+            >
+              <span
+                class="size-1.5 rounded-full"
+                classList={{ "oc-flow-dot-pulse": attention() === "question" || attention() === "permission" }}
+                style={{ background: effectiveColor() }}
+              />
+            </span>
+            <span class="text-10-regular text-text-weak shrink-0">
+              {formatRelative(props.node.session.time?.updated)}
+            </span>
+          </div>
+        }
+      >
+        <div
+          role="button"
+          tabindex="0"
+          onClick={(e) => {
+            e.stopPropagation()
+            props.onOpen(props.node.session.id)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              props.onOpen(props.node.session.id)
+            }
+          }}
+          class="text-left rounded-md border bg-background-base p-3 flex flex-col gap-2 hover:border-border-strong transition-colors w-[220px] shrink-0 cursor-pointer self-start"
+          classList={{ "border-border-base": !highlighted() }}
+          style={highlighted() ? { "border-color": effectiveColor() } : undefined}
+        >
+          <div class="flex items-center gap-2">
+            <span
+              class="text-10-medium uppercase tracking-wide px-1.5 py-0.5 rounded"
+              style={{ background: "rgba(42,157,140,0.15)", color: "#2A9D8F" }}
+            >
+              orchestrator
+            </span>
+          </div>
+          <span class="text-12-medium text-text-strong line-clamp-2">{cleanTitle(props.node.session)}</span>
+          <div class="flex items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-10-medium"
+              style={{ background: `${effectiveColor()}20`, color: effectiveColor() }}
+            >
+              <span
+                class="size-1.5 rounded-full"
+                classList={{ "oc-flow-dot-pulse": attention() === "question" || attention() === "permission" }}
+                style={{ background: effectiveColor() }}
+              />
+              {effectiveLabel()}
+            </span>
+            <span class="text-10-regular text-text-weak ml-auto">
+              {formatRelative(props.node.session.time?.updated)}
+            </span>
+          </div>
         </div>
-      </div>
+      </Show>
 
       <Show when={props.node.children.length > 0}>
         <div class="flex items-center shrink-0">
@@ -349,7 +393,7 @@ function FlowColumns(props: {
             <line x1="0" y1="1" x2="20" y2="1" stroke="var(--color-border-strong)" stroke-width="1" stroke-dasharray="3 2" />
           </svg>
         </div>
-        <div class="flex flex-col gap-3 justify-center">
+        <div class="flex flex-col gap-1.5 justify-center">
           <For each={props.node.children}>
             {(child) => (
               <FlowColumns
