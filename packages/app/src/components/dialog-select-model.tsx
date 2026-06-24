@@ -1,7 +1,8 @@
 import { Popover as Kobalte } from "@kobalte/core/popover"
-import { Component, ComponentProps, createMemo, JSX, Show, ValidComponent } from "solid-js"
+import { Component, ComponentProps, createMemo, createSignal, JSX, Show, ValidComponent } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useLocal } from "@/context/local"
+import { useModels, type ModelKey } from "@/context/models"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { popularProviders } from "@/hooks/use-providers"
 import { Button } from "@opencode-ai/ui/button"
@@ -18,7 +19,7 @@ const isFree = (provider: string, cost: { input: number } | undefined) =>
 
 type ModelState = ReturnType<typeof useLocal>["model"]
 
-const ModelList: Component<{
+export const ModelList: Component<{
   provider?: string
   class?: string
   onSelect: () => void
@@ -226,5 +227,76 @@ export const DialogSelectModel: Component<{ provider?: string; model?: ModelStat
         {language.t("dialog.model.manage")}
       </Button>
     </Dialog>
+  )
+}
+
+export function ModelPickerInput(props: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  const models = useModels()
+  const [open, setOpen] = createSignal(false)
+
+  const currentModel = createMemo(() => {
+    const idx = props.value.indexOf("/")
+    if (idx < 0) return undefined
+    return models.find({ providerID: props.value.slice(0, idx), modelID: props.value.slice(idx + 1) })
+  })
+
+  const modelState = {
+    ready: models.ready,
+    list: models.list,
+    visible: (key: ModelKey) => models.visible(key),
+    current: currentModel,
+    set(item: ModelKey | undefined, _options?: { recent?: boolean }) {
+      if (item) props.onChange(`${item.providerID}/${item.modelID}`)
+    },
+    recent: createMemo(() => []),
+    cycle: (_direction: 1 | -1) => {},
+    setVisibility: (key: ModelKey, state: boolean) => models.setVisibility(key, state),
+    variant: {
+      configured: () => undefined,
+      selected: () => undefined as string | null | undefined,
+      current() {
+        return undefined as string | undefined
+      },
+      list() {
+        return [] as string[]
+      },
+      set(_value: string | undefined) {},
+      cycle() {},
+    },
+  } as unknown as ModelState
+
+  return (
+    <label class="flex flex-col gap-1.5">
+      <span class="text-12-medium text-text-base">{props.label}</span>
+      <Kobalte open={open()} onOpenChange={setOpen} modal={false} placement="bottom-start" gutter={4}>
+        <Kobalte.Trigger
+          as="button"
+          type="button"
+          class="px-3 py-2 rounded-lg border border-border-base bg-surface-base text-text-strong text-13-regular focus:outline-none focus:border-brand-base focus:ring-1 focus:ring-brand-base transition-colors text-left flex items-center justify-between gap-2 w-full"
+        >
+          <span class="truncate">{currentModel()?.name ?? props.value}</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" class="shrink-0 text-text-weak">
+            <path d="M6 8L1 3h10L6 8z" />
+          </svg>
+        </Kobalte.Trigger>
+        <Kobalte.Portal>
+          <Kobalte.Content
+            class="w-72 h-80 flex flex-col p-2 rounded-md border border-border-base bg-surface-raised-stronger-non-alpha shadow-md z-50 outline-none overflow-hidden"
+            onEscapeKeyDown={(event) => {
+              setOpen(false)
+              event.preventDefault()
+            }}
+            onPointerDownOutside={() => setOpen(false)}
+          >
+            <Kobalte.Title class="sr-only">Select Model</Kobalte.Title>
+            <ModelList model={modelState} onSelect={() => setOpen(false)} class="p-1" />
+          </Kobalte.Content>
+        </Kobalte.Portal>
+      </Kobalte>
+    </label>
   )
 }

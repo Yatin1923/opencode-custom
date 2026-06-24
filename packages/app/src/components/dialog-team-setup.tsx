@@ -5,6 +5,7 @@ import { Dialog } from "@opencode-ai/ui/dialog"
 import { Tabs } from "@opencode-ai/ui/tabs"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useServer } from "@/context/server"
+import { ModelPickerInput } from "./dialog-select-model"
 
 // ============ Types ============
 
@@ -121,18 +122,6 @@ const IAC_OPTIONS = [
   { label: "Bicep", value: "bicep" },
   { label: "AWS CDK", value: "cdk" },
   { label: "Pulumi", value: "pulumi" },
-]
-
-const MODEL_OPTIONS = [
-  { label: "Claude Opus 4.6 (Copilot)", value: "github-copilot/claude-opus-4.6" },
-  { label: "Claude Sonnet 4.5 (Copilot)", value: "github-copilot/claude-sonnet-4.5" },
-  { label: "Claude Haiku 4.5 (Copilot)", value: "github-copilot/claude-haiku-4.5" },
-  { label: "GPT-4o (Copilot)", value: "github-copilot/gpt-4o" },
-  { label: "GPT-4.1 (Copilot)", value: "github-copilot/gpt-4.1" },
-  { label: "GPT-4.1 mini (Copilot)", value: "github-copilot/gpt-4.1-mini" },
-  { label: "o3 (Copilot)", value: "github-copilot/o3" },
-  { label: "o4-mini (Copilot)", value: "github-copilot/o4-mini" },
-  { label: "Gemini 2.5 Pro (Copilot)", value: "github-copilot/gemini-2.5-pro" },
 ]
 
 const MCP_SERVER_OPTIONS = [
@@ -590,10 +579,10 @@ function TabModels(props: { config: TeamConfig; setConfig: any }) {
   return (
     <div class="flex flex-col gap-5">
       <div class="grid grid-cols-2 gap-4">
-        <SelectInput label="Developer Model" value={props.config.models.developer} onChange={(v) => props.setConfig("models", "developer", v)} options={MODEL_OPTIONS} />
-        <SelectInput label="Small/Fast Model" value={props.config.models.small} onChange={(v) => props.setConfig("models", "small", v)} options={MODEL_OPTIONS} />
-        <SelectInput label="Escalation Model" value={props.config.models.escalation} onChange={(v) => props.setConfig("models", "escalation", v)} options={MODEL_OPTIONS} />
-        <SelectInput label="Orchestrator Model" value={props.config.models.orchestrator} onChange={(v) => props.setConfig("models", "orchestrator", v)} options={MODEL_OPTIONS} />
+        <ModelPickerInput label="Developer Model" value={props.config.models.developer} onChange={(v) => props.setConfig("models", "developer", v)} />
+        <ModelPickerInput label="Small/Fast Model" value={props.config.models.small} onChange={(v) => props.setConfig("models", "small", v)} />
+        <ModelPickerInput label="Escalation Model" value={props.config.models.escalation} onChange={(v) => props.setConfig("models", "escalation", v)} />
+        <ModelPickerInput label="Orchestrator Model" value={props.config.models.orchestrator} onChange={(v) => props.setConfig("models", "orchestrator", v)} />
       </div>
       <div class="p-3 rounded-lg bg-surface-raised-base border border-border-base">
         <p class="text-12-regular text-text-weak">
